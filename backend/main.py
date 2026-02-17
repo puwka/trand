@@ -5,13 +5,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import router
-from app.worker import start_worker
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Skip background worker on Vercel (serverless)
     if not os.getenv("VERCEL"):
+        from app.worker import start_worker
         start_worker(interval_minutes=60)
     yield
     # shutdown
