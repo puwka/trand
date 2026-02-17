@@ -71,7 +71,7 @@ export default function Dashboard() {
     const check = () => {
       fetch(`${API_BASE}/parse-now/status`)
         .then((r) => (r.ok ? r.json() : {}))
-        .then((data) => setAutoParsing(data.running === true))
+        .then((data: { running?: boolean }) => setAutoParsing(data?.running === true))
         .catch(() => {});
     };
     check();
