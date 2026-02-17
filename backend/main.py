@@ -12,7 +12,7 @@ from app.worker import start_worker
 async def lifespan(app: FastAPI):
     # Skip background worker on Vercel (serverless)
     if not os.getenv("VERCEL"):
-        start_worker(interval_minutes=30)
+        start_worker(interval_minutes=60)
     yield
     # shutdown
 

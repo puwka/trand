@@ -183,7 +183,7 @@ def _run_worker_cycle():
     return stats
 
 
-def start_worker(interval_minutes: int = 30):
+def start_worker(interval_minutes: int = 60):
     """Start the background scheduler."""
     from datetime import datetime
 
