@@ -1,13 +1,19 @@
 """Main application configuration."""
 
+import os
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load .env only if it exists (not on Vercel)
+if os.path.isfile(".env"):
+    load_dotenv()
+elif os.path.isfile("backend/.env"):
+    load_dotenv("backend/.env")
 
 try:
     from pydantic_settings import BaseSettings
 except ImportError:
     from pydantic import BaseSettings  # pydantic<2
+
 
 class Settings(BaseSettings):
     supabase_url: str = ""
@@ -22,7 +28,7 @@ class Settings(BaseSettings):
     google_credentials_json: str = ""
 
     class Config:
-        env_file = ".env"
+        env_file = ".env" if os.path.isfile(".env") else None
         extra = "ignore"
 
 
