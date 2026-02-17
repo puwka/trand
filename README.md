@@ -4,8 +4,6 @@
 
 ## Деплой на Vercel
 
-**Важно:** В Project Settings → General → Node.js Version выберите **18.x** (для корректной сборки Python API).
-
 1. Подключите репозиторий к Vercel
 2. Добавьте переменные окружения в Project Settings → Environment Variables:
    - `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`
