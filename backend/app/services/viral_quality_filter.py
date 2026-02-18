@@ -46,7 +46,7 @@ Do not rank. Only filter quality: keep real trend format, discard spam/repost/lo
 
     try:
         verify_ssl = settings.openai_ssl_verify.lower() != "false"
-        http_client = httpx.Client(verify=verify_ssl, timeout=30)
+        http_client = httpx.Client(verify=verify_ssl, timeout=25)
         client = OpenAI(
             api_key=settings.openai_api_key,
             base_url=settings.neuroapi_base_url,

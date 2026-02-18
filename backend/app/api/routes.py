@@ -119,11 +119,11 @@ def parse_now_status():
 
 
 @router.post("/parse-now")
-def parse_now():
+async def parse_now():
     """Запустить парсинг вручную."""
     from app.worker import run_worker_cycle
 
-    stats = run_worker_cycle()
+    stats = await run_worker_cycle()
     if stats.get("error_message"):
         return {"ok": False, "message": stats["error_message"], **stats}
     sources = _sources().select()

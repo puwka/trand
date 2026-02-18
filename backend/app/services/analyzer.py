@@ -51,7 +51,7 @@ Return ONLY valid JSON in this exact format, no other text:
 """
 
     verify_ssl = settings.openai_ssl_verify.lower() != "false"
-    http_client = httpx.Client(verify=verify_ssl, timeout=60)
+    http_client = httpx.Client(verify=verify_ssl, timeout=25)
     client = OpenAI(
         api_key=settings.openai_api_key,
         base_url=settings.neuroapi_base_url,

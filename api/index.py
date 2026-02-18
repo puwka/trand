@@ -1,20 +1,17 @@
-"""Vercel FastAPI entrypoint.
-
-Vercel's FastAPI detection expects an `app` variable in this module.
+"""
+Vercel serverless entrypoint. Exposes FastAPI app only.
+No code execution, no side effects, no heavy imports.
 """
 
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-BACKEND_DIR = ROOT / "backend"
-
-# Ensure both `backend` package and `app` package (backend/app) are importable.
+BACKEND = ROOT / "backend"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-if str(BACKEND_DIR) not in sys.path:
-    sys.path.insert(0, str(BACKEND_DIR))
+if str(BACKEND) not in sys.path:
+    sys.path.insert(0, str(BACKEND))
 
-# Important: expose `app` at module top-level
-from backend.main import app  # noqa: E402
-
+# Deferred import: backend.app builds app with router; no execution on import
+from backend.app.server import app

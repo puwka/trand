@@ -1,14 +1,13 @@
 """
-Background Worker: Viral trend detector pipeline.
+Worker: Viral trend detector pipeline (endpoint-triggered only).
 Fetch -> Hard filter -> Score -> Sort -> AI quality filter (top 30%) -> Save.
+No background scheduler — use POST /api/parse-now.
 """
 
-import asyncio
 import logging
 from collections import defaultdict
 
 import httpx
-from apscheduler.schedulers.background import BackgroundScheduler
 
 from app.config import ingestion_settings
 from app.database import table
@@ -19,9 +18,7 @@ from app.adapters.apify.apify_client import ApifyCreditsExhaustedError
 from app.services.quality_gate import apply_quality_gate, GateResult
 from app.services.viral_pipeline import run_viral_pipeline
 
-logging.basicConfig(level=logging.INFO)
-
-# True when scheduler is running a cycle (auto-parse)
+# True when parse cycle is running a cycle (auto-parse)
 _parsing_in_progress = False
 
 
@@ -40,17 +37,17 @@ def _is_source_credits_error(e: Exception) -> bool:
 logger = logging.getLogger(__name__)
 
 
-def run_worker_cycle():
+async def run_worker_cycle():
     """One iteration: fetch -> viral pipeline -> save top videos."""
     global _parsing_in_progress
     _parsing_in_progress = True
     try:
-        return _run_worker_cycle()
+        return await _run_worker_cycle()
     finally:
         _parsing_in_progress = False
 
 
-def _run_worker_cycle():
+async def _run_worker_cycle():
     """Inner implementation of worker cycle."""
     stats = {"processed": 0, "viral": 0, "skipped": 0, "errors": 0, "rejected_filter": 0}
 
@@ -82,7 +79,7 @@ def _run_worker_cycle():
     for coll_platform, items in by_platform.items():
         channel_list = [ident for _, ident in items]
         try:
-            videos = asyncio.run(fetch_from_sources(channel_list, coll_platform))
+            videos = await fetch_from_sources(channel_list, coll_platform)
             for v in videos:
                 all_videos.append((items[0][0], v))
         except ApifyCreditsExhaustedError as e:
@@ -181,19 +178,3 @@ def _run_worker_cycle():
             logger.exception(f"Error saving video {video.video_id}: {e}")
 
     return stats
-
-
-def start_worker(interval_minutes: int = 60):
-    """Start the background scheduler."""
-    from datetime import datetime
-
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(
-        run_worker_cycle,
-        "interval",
-        minutes=interval_minutes,
-        id="trend_worker",
-        next_run_time=datetime.now(),
-    )
-    scheduler.start()
-    logger.info(f"Worker started, interval={interval_minutes} min")

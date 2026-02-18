@@ -79,7 +79,7 @@ class YouTubeAdapter(BaseAdapter):
             )
             return list(videos_resp.get("items", []))
 
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         with ThreadPoolExecutor() as ex:
             items = await loop.run_in_executor(ex, _search)
         return [v for v in [self._normalize(item) for item in items] if v]
@@ -136,7 +136,7 @@ class YouTubeAdapter(BaseAdapter):
             out = [by_id[vid] for s in search.get("items", []) for vid in [s.get("id", {}).get("videoId")] if vid and vid in by_id]
             return out
 
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         with ThreadPoolExecutor() as ex:
             items = await loop.run_in_executor(ex, _fetch)
         return [v for v in [self._normalize(item) for item in items] if v]

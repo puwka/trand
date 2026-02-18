@@ -1,13 +1,7 @@
-"""Main application configuration."""
+"""Main application configuration. No load_dotenv — Vercel provides env."""
 
 import os
-from dotenv import load_dotenv
-
-# Load .env only if it exists (not on Vercel)
-if os.path.isfile(".env"):
-    load_dotenv()
-elif os.path.isfile("backend/.env"):
-    load_dotenv("backend/.env")
+from functools import lru_cache
 
 try:
     from pydantic_settings import BaseSettings
@@ -28,8 +22,14 @@ class Settings(BaseSettings):
     google_credentials_json: str = ""
 
     class Config:
-        env_file = ".env" if os.path.isfile(".env") else None
+        env_file = None if os.environ.get("VERCEL") else ".env"
         extra = "ignore"
 
 
-settings = Settings()
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+
+
+# Singleton for backwards compat; init deferred to first access
+settings = get_settings()

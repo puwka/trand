@@ -39,27 +39,27 @@ class TableClient:
             params["order"] = f"{order}.{'desc' if desc else 'asc'}"
         for k, v in filters.items():
             params[k] = f"eq.{v}"
-        with httpx.Client(timeout=30) as client:
+        with httpx.Client(timeout=25) as client:
             r = client.get(self.url, headers=_headers(), params=params)
             r.raise_for_status()
             return r.json() or []
 
     def insert(self, data: dict | list[dict]) -> list[dict]:
-        with httpx.Client(timeout=30) as client:
+        with httpx.Client(timeout=25) as client:
             r = client.post(self.url, headers=_headers(), json=data)
             r.raise_for_status()
             return r.json() or []
 
     def update(self, data: dict, **filters) -> list[dict]:
         params = {k: f"eq.{v}" for k, v in filters.items()}
-        with httpx.Client(timeout=30) as client:
+        with httpx.Client(timeout=25) as client:
             r = client.patch(self.url, headers=_headers(), params=params, json=data)
             r.raise_for_status()
             return r.json() or []
 
     def delete(self, **filters) -> None:
         params = {k: f"eq.{v}" for k, v in filters.items()}
-        with httpx.Client(timeout=30) as client:
+        with httpx.Client(timeout=25) as client:
             r = client.delete(self.url, headers=_headers(), params=params)
             r.raise_for_status()
 
@@ -72,7 +72,7 @@ def storage_upload(bucket: str, path: str, data: bytes, content_type: str) -> st
         "Authorization": f"Bearer {settings.supabase_service_key}",
         "Content-Type": content_type,
     }
-    with httpx.Client(timeout=60) as client:
+    with httpx.Client(timeout=25) as client:
         r = client.post(url, headers=headers, content=data)
         r.raise_for_status()
     return f"{base}/storage/v1/object/public/{bucket}/{path}"

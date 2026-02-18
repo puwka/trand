@@ -67,7 +67,7 @@ class ReelsAdapter(BaseAdapter):
             entries = info.get("entries", []) if info else []
             return [e for e in entries if e and isinstance(e, dict)]
 
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         with ThreadPoolExecutor() as ex:
             entries = await loop.run_in_executor(ex, _run)
         return [v for v in [self._normalize_from_flat(e) for e in entries[: self.max_results]] if v]
@@ -101,7 +101,7 @@ class ReelsAdapter(BaseAdapter):
                 logger.info(f"[reels] No entries for {username}. Instagram may require cookies.")
             return entries[: self.max_results]
 
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         with ThreadPoolExecutor() as ex:
             entries = await loop.run_in_executor(ex, _run)
         return [v for v in [self._normalize_from_flat(e) for e in entries] if v]
