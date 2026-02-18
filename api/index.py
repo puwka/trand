@@ -1,23 +1,20 @@
-"""Vercel serverless entry point. Handles all /api/* routes."""
+"""Vercel FastAPI entrypoint.
+
+Vercel's FastAPI detection expects an `app` variable in this module.
+"""
+
 import sys
-import os
 from pathlib import Path
 
-# Add project root so backend can be imported
-root = Path(__file__).resolve().parent.parent
-if str(root) not in sys.path:
-    sys.path.insert(0, str(root))
-# Vercel: ensure backend is findable
-backend_path = root / "backend"
-if str(backend_path) not in sys.path:
-    sys.path.insert(0, str(backend_path))
+ROOT = Path(__file__).resolve().parent.parent
+BACKEND_DIR = ROOT / "backend"
 
-# .env not deployed — rely on Vercel env vars only
-os.chdir(str(root))
+# Ensure both `backend` package and `app` package (backend/app) are importable.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
 
-try:
-    from backend.main import app
-except Exception as e:
-    import traceback
-    traceback.print_exc()
-    raise
+# Important: expose `app` at module top-level
+from backend.main import app  # noqa: E402
+

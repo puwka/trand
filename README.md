@@ -4,16 +4,20 @@
 
 ## Деплой на Vercel
 
-1. Подключите репозиторий к Vercel
-2. Добавьте переменные окружения в Project Settings → Environment Variables:
-   - `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`
-   - `OPENAI_API_KEY` или `NEUROAPI_BASE_URL` + `NEUROAPI_MODEL`
-   - `YOUTUBE_API_KEY`
-   - `USE_APIFY=true`, `APIFY_TOKEN` (для TikTok/Reels через Apify)
-   - `GOOGLE_SHEET_ID` (опционально, для выгрузки)
-3. Для Google Sheets: загрузите JSON сервисного аккаунта как `GOOGLE_CREDENTIALS_JSON` (содержимое файла)
+Проект деплоится как SPA (frontend) + Python Function (FastAPI) в `api/index.py`.
 
-**Примечание:** на Vercel не запускается фоновый воркер. Для автопарсинга настройте [Vercel Cron](https://vercel.com/docs/cron-jobs): POST на `/api/parse-now` по расписанию.
+### 1. Переменные окружения (Vercel → Project Settings → Environment Variables)
+
+- `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`
+- `OPENAI_API_KEY` или `NEUROAPI_BASE_URL` + `NEUROAPI_MODEL`
+- `YOUTUBE_API_KEY`
+- `USE_APIFY=true`, `APIFY_TOKEN` (опционально)
+- `GOOGLE_SHEET_ID`, `GOOGLE_CREDENTIALS_JSON` (опционально)
+
+### 2. Автопарсинг каждый час
+
+На Vercel фоновые задачи не живут постоянно, поэтому автопарсинг делается через [Vercel Cron Jobs](https://vercel.com/docs/cron-jobs):
+- POST на `/api/parse-now` **каждый час**
 
 ## Локальная разработка
 
