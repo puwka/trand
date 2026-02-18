@@ -1,13 +1,15 @@
 """
-Worker: Viral trend detector pipeline (endpoint-triggered only).
+Worker: Viral trend detector pipeline.
 Fetch -> Hard filter -> Score -> Sort -> AI quality filter (top 30%) -> Save.
-No background scheduler — use POST /api/parse-now.
+Background scheduler (Railway) + POST /api/parse-now for manual trigger.
 """
 
 import logging
 from collections import defaultdict
+from datetime import datetime
 
 import httpx
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from app.config import ingestion_settings
 from app.database import table
@@ -178,3 +180,17 @@ async def _run_worker_cycle():
             logger.exception(f"Error saving video {video.video_id}: {e}")
 
     return stats
+
+
+def start_worker(interval_minutes: int = 60):
+    """Start background scheduler for auto-parse."""
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(
+        lambda: __import__("asyncio").run(run_worker_cycle()),
+        "interval",
+        minutes=interval_minutes,
+        id="trend_worker",
+        next_run_time=datetime.now(),
+    )
+    scheduler.start()
+    logger.info("Worker started, interval=%s min", interval_minutes)

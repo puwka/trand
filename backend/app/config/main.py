@@ -1,4 +1,4 @@
-"""Main application configuration. No load_dotenv — Vercel provides env."""
+"""Main application configuration."""
 
 import os
 from functools import lru_cache
@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     google_credentials_json: str = ""
 
     class Config:
-        env_file = None if os.environ.get("VERCEL") else ".env"
+        env_file = ".env"
         extra = "ignore"
 
 
